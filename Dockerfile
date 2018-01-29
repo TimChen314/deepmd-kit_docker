@@ -29,10 +29,10 @@ RUN yum install -y automake \
     wget
 ENV tensorflow_root=/opt/tensorflow xdrfile_root=/opt/xdrfile \
     deepmd_root=/opt/deepmd deepmd_source_dir=/root/deepmd-kit
+# If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
     git clone https://github.com/tensorflow/tensorflow tensorflow && \
-    git clone https://github.com/lammps/lammps lammps && \
     cd tensorflow && git checkout r1.4
 # install tensorflow C lib
 COPY install_input /root/tensorflow
@@ -45,10 +45,15 @@ RUN cd /root/tensorflow && tensorflow/contrib/makefile/download_dependencies.sh 
     cd /root && sh -x install_protobuf.sh && sh -x install_eigen.sh && \
     sh -x install_nsync.sh && sh -x copy_lib.sh && sh -x install_xdrfile.sh 
 # `source /opt/rh/devtoolset-4/enable` to set gcc version to 5.x, which is needed by deepmd-kit.
+# install deepmd
 RUN cd /root && source /opt/rh/devtoolset-4/enable && \ 
-    sh -x install_deepmd.sh && sh -x install_lammps.sh
+    sh -x install_deepmd.sh
+# install lammps
+RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Mar2017 && \
+    tar xf patch_31Mar2017 && source /opt/rh/devtoolset-4/enable && sh -x install_lammps.sh
 # install tensorflow in python3 module
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
     conda create -n tensorflow python=3 && \
     conda config --add channels conda-forge && \
     conda install -c conda-forge tensorflow 
