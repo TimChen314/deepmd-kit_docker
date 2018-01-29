@@ -13,6 +13,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM*
 RUN yum install -y automake \
     autoconf \
     bzip \
+    bzip2 \
     bazel \
     cmake \
     cmake3 \
@@ -28,7 +29,8 @@ RUN yum install -y automake \
     vim \
     wget
 ENV tensorflow_root=/opt/tensorflow xdrfile_root=/opt/xdrfile \
-    deepmd_root=/opt/deepmd deepmd_source_dir=/root/deepmd-kit
+    deepmd_root=/opt/deepmd deepmd_source_dir=/root/deepmd-kit \
+    PATH="/opt/conda3/bin:${PATH}"
 # If download lammps with git, there will be errors during installion. Hence we'll download lammps later on.
 RUN cd /root && \
     git clone https://github.com/deepmodeling/deepmd-kit.git deepmd-kit && \
@@ -54,7 +56,6 @@ RUN cd /root && wget https://codeload.github.com/lammps/lammps/tar.gz/patch_31Ma
 # install tensorflow in python3 module
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda3/ && \
-    conda create -n tensorflow python=3 && \
     conda config --add channels conda-forge && \
-    conda install -c conda-forge tensorflow 
+    conda install -c conda-forge -y tensorflow 
 CMD ["/bin/bash"]
